@@ -2,7 +2,9 @@ package com.example.student_ms.controller;
 
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.example.student_ms.dtos.StudentDto;
 import com.example.student_ms.entity.Student;
 import com.example.student_ms.service.StudentService;
 
@@ -16,29 +18,58 @@ public class StudentApiController {
         this.studentService = studentService;
     }
 
+    private StudentDto convertToDto(Student student) {
+        StudentDto dto = new StudentDto();
+        dto.setId(student.getId());
+        dto.setFirstName(student.getFirstName());
+        dto.setLastName(student.getLastName());
+        dto.setUsername(student.getUsername());
+        dto.setEmail(student.getEmail());
+        dto.setPassword(student.getPassword());
+        return dto;
+    }
+
+    private Student convertToEntity(StudentDto dto) {
+        Student student = new Student();
+        student.setId(dto.getId());
+        student.setFirstName(dto.getFirstName());
+        student.setLastName(dto.getLastName());
+        student.setUsername(dto.getUsername());
+        student.setEmail(dto.getEmail());
+        student.setPassword(dto.getPassword());
+        return student;
+    }
+
     @GetMapping
-    public List<Student> getAllStudents() {
-        return studentService.getAllStudents();
+    public List<StudentDto> getAllStudents() {
+        return studentService.getAllStudents()
+                             .stream()
+                             .map(this::convertToDto)
+                             .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public Student getStudentById(@PathVariable Long id) {
-        return studentService.getStudentById(id);
+    public StudentDto getStudentById(@PathVariable Long id) {
+        return convertToDto(studentService.getStudentById(id));
     }
 
     @PostMapping
-    public Student createStudent(@RequestBody Student student) {
-        return studentService.savesStudent(student);
+    public StudentDto createStudent(@RequestBody StudentDto studentDto) {
+        Student student = convertToEntity(studentDto);
+        return convertToDto(studentService.savesStudent(student));
     }
 
     @PutMapping("/{id}")
-    public Student updateStudent(@PathVariable Long id, @RequestBody Student student) {
-        Student existingStudent = studentService.getStudentById(id);
-        existingStudent.setFirstName(student.getFirstName());
-        existingStudent.setLastName(student.getLastName());
-        existingStudent.setEmail(student.getEmail());
+    public StudentDto updateStudent(@PathVariable Long id, @RequestBody StudentDto studentDto) {
+        Student existing = studentService.getStudentById(id);
 
-        return studentService.updateStudent(existingStudent);
+        existing.setFirstName(studentDto.getFirstName());
+        existing.setLastName(studentDto.getLastName());
+        existing.setUsername(studentDto.getUsername());
+        existing.setEmail(studentDto.getEmail());
+        existing.setPassword(studentDto.getPassword());
+
+        return convertToDto(studentService.updateStudent(existing));
     }
 
     @DeleteMapping("/{id}")

@@ -20,7 +20,7 @@
             <div class="collapse navbar-collapse" id="collapsibleNavbar">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link text-light" th:href="@{/students/view}">Student Management</a>
+                        <a class="nav-link text-light" th:href="@{/students}">Student Management</a>
                     </li>
                 </ul>
             </div>
@@ -30,11 +30,7 @@
     <div class="container mt-5">
         <h1 class="text-center mb-4">Student List</h1>
 
-        <div class="d-flex justify-content-start mb-3">
-            <a th:href="@{/students/new}" class="btn btn-dark">
-                <i class="fas fa-user-plus"></i> Add Student
-            </a>
-        </div>
+       
 
         <div class="table-responsive">
             <table class="table table-striped table-hover table-bordered shadow-sm">
@@ -44,7 +40,7 @@
                         <th class="p-3">Last Name</th>
                         <th class="p-3">Username</th> <!-- NEW -->
                         <th class="p-3">Email</th>
-                        <th class="p-3">Actions</th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -53,18 +49,6 @@
                         <td th:text="${student.lastName}" class="p-3"></td>
                         <td th:text="${student.username}" class="p-3"></td> <!-- NEW -->
                         <td th:text="${student.email}" class="p-3"></td>
-                        <td class="p-3">
-                            <div class="btn-group" role="group">
-                                <a th:href="@{/students/edit/{id}(id=${student.id})}" class="btn btn-sm btn-secondary">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                                <form th:action="@{/students/{id}/delete(id=${student.id})}" method="post" style="display:inline;">
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
-                                        <i class="fas fa-trash-alt"></i> Delete
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
                     </tr>
                 </tbody>
             </table>
