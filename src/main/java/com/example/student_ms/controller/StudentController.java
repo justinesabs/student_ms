@@ -2,33 +2,53 @@ package com.example.student_ms.controller;
 
 import com.example.student_ms.dtos.StudentDto;
 import com.example.student_ms.entity.Student;
+import com.example.student_ms.repository.StudentRepository;
 import com.example.student_ms.service.StudentService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.util.List;
+
+
 @Controller
 public class StudentController {
 
+
+    @Autowired
     private final StudentService studentService;
+
+    @Autowired
+    private StudentRepository studentRepository;
 
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
     }
 
-    @GetMapping("/login")
-    public String showLoginPage() {
-        return "login";
-    }
-
     @GetMapping("/students/view")
-    public String viewStudents(Model model) {
-        model.addAttribute("students", studentService.getAllStudents());
-        return "view_student";
+    public String viewStudents(Model model, Principal principal) {
+        String username = principal.getName();
+
+        Student loggedInStudent = studentRepository.findByUsername(username).orElse(null);
+        model.addAttribute("student", loggedInStudent);
+
+        List<Student> students = studentService.getAllStudents();
+        model.addAttribute("students", students);
+
+        return "students_view";
     }
 
     @GetMapping("/students")
-    public String listStudents(Model model) {
+    public String listStudents(Model model, Principal principal) {
+        String username = principal.getName();
+
+        Student loggedInStudent = studentRepository.findByUsername(username).orElse(null);
+        model.addAttribute("student", loggedInStudent);
+
+        List<Student> students = studentService.getAllStudents();
         model.addAttribute("students", studentService.getAllStudents());
         return "students";
     }
@@ -60,7 +80,7 @@ public class StudentController {
         dto.setLastName(student.getLastName());
         dto.setUsername(student.getUsername());
         dto.setEmail(student.getEmail());
-        dto.setPassword(student.getPassword()); // optionally hidden in form
+        dto.setPassword(student.getPassword()); 
         model.addAttribute("student", dto);
         return "edit_student";
     }
@@ -72,7 +92,6 @@ public class StudentController {
         existingStudent.setLastName(studentDto.getLastName());
         existingStudent.setUsername(studentDto.getUsername());
         existingStudent.setEmail(studentDto.getEmail());
-        // Handle password update logic if required
         studentService.updateStudent(existingStudent);
         return "redirect:/students";
     }
