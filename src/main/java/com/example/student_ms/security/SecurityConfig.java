@@ -23,8 +23,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/api/students/**").permitAll()
-                .requestMatchers("/students/view").hasRole("USER")
-                .requestMatchers("/students/**").hasRole("USER")
+                .requestMatchers("/students/view").permitAll()
+                .requestMatchers("/students/**").permitAll()
+                .requestMatchers("/students/new/", "/students/edit/**", "/students/delete/**").permitAll()
                 .anyRequest().permitAll()
             )
             .formLogin(login -> login

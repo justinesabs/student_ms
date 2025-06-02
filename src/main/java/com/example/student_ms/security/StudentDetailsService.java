@@ -25,6 +25,8 @@ public class StudentDetailsService implements UserDetailsService {
             .orElseThrow(() -> new UsernameNotFoundException("Student not found"));
 
         return new org.springframework.security.core.userdetails.User(
+
+        
             student.getUsername(),
             student.getPassword(),
             Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))

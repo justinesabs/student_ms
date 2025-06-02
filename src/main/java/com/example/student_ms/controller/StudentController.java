@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 
-
 @Controller
 public class StudentController {
-
 
     @Autowired
     private final StudentService studentService;
@@ -31,9 +29,8 @@ public class StudentController {
     @GetMapping("/students/view")
     public String viewStudents(Model model, Principal principal) {
         String username = principal.getName();
-
         Student loggedInStudent = studentRepository.findByUsername(username).orElse(null);
-        model.addAttribute("student", loggedInStudent);
+        model.addAttribute("loggedInUser", loggedInStudent);
 
         List<Student> students = studentService.getAllStudents();
         model.addAttribute("students", students);
@@ -44,23 +41,27 @@ public class StudentController {
     @GetMapping("/students")
     public String listStudents(Model model, Principal principal) {
         String username = principal.getName();
-
         Student loggedInStudent = studentRepository.findByUsername(username).orElse(null);
-        model.addAttribute("student", loggedInStudent);
+        model.addAttribute("loggedInUser", loggedInStudent);
 
         List<Student> students = studentService.getAllStudents();
-        model.addAttribute("students", studentService.getAllStudents());
+        model.addAttribute("students", students);
         return "students";
     }
 
     @GetMapping("/students/new")
-    public String createStudentForm(Model model) {
-        model.addAttribute("student", new StudentDto());
+    public String createStudentForm(Model model, Principal principal) {
+        model.addAttribute("newStudent", new StudentDto());
+
+        String username = principal.getName();
+        Student loggedInStudent = studentRepository.findByUsername(username).orElse(null);
+        model.addAttribute("loggedInUser", loggedInStudent);
+
         return "create_student";
     }
 
     @PostMapping("/students")
-    public String saveStudent(@ModelAttribute("student") StudentDto studentDto) {
+    public String saveStudent(@ModelAttribute("newStudent") StudentDto studentDto) {
         Student student = new Student();
         student.setFirstName(studentDto.getFirstName());
         student.setLastName(studentDto.getLastName());
@@ -72,7 +73,7 @@ public class StudentController {
     }
 
     @GetMapping("/students/edit/{id}")
-    public String editStudentForm(@PathVariable Long id, Model model) {
+    public String editStudentForm(@PathVariable Long id, Model model, Principal principal) {
         Student student = studentService.getStudentById(id);
         StudentDto dto = new StudentDto();
         dto.setId(student.getId());
@@ -80,8 +81,13 @@ public class StudentController {
         dto.setLastName(student.getLastName());
         dto.setUsername(student.getUsername());
         dto.setEmail(student.getEmail());
-        dto.setPassword(student.getPassword()); 
+        dto.setPassword(student.getPassword());
         model.addAttribute("student", dto);
+
+        String username = principal.getName();
+        Student loggedInStudent = studentRepository.findByUsername(username).orElse(null);
+        model.addAttribute("loggedInUser", loggedInStudent);
+
         return "edit_student";
     }
 
