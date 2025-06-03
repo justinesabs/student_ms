@@ -17,7 +17,7 @@ import java.util.List;
 public class StudentController {
 
     @Autowired
-    private final StudentService studentService;
+    private StudentService studentService;
 
     @Autowired
     private StudentRepository studentRepository;
@@ -35,7 +35,7 @@ public class StudentController {
         List<Student> students = studentService.getAllStudents();
         model.addAttribute("students", students);
 
-        return "students_view";
+        return "view_student";
     }
 
     @GetMapping("/students")
@@ -51,7 +51,7 @@ public class StudentController {
 
     @GetMapping("/students/new")
     public String createStudentForm(Model model, Principal principal) {
-        model.addAttribute("newStudent", new StudentDto());
+        model.addAttribute("student", new StudentDto());
 
         String username = principal.getName();
         Student loggedInStudent = studentRepository.findByUsername(username).orElse(null);
@@ -61,7 +61,7 @@ public class StudentController {
     }
 
     @PostMapping("/students")
-    public String saveStudent(@ModelAttribute("newStudent") StudentDto studentDto) {
+    public String saveStudent(Model model, @ModelAttribute("student") StudentDto studentDto, Principal principal) {
         Student student = new Student();
         student.setFirstName(studentDto.getFirstName());
         student.setLastName(studentDto.getLastName());
@@ -69,6 +69,11 @@ public class StudentController {
         student.setEmail(studentDto.getEmail());
         student.setPassword(studentDto.getPassword());
         studentService.savesStudent(student);
+
+        String username = principal.getName();
+        Student loggedInStudent = studentRepository.findByUsername(username).orElse(null);
+        model.addAttribute("loggedInUser", loggedInStudent);
+
         return "redirect:/students";
     }
 

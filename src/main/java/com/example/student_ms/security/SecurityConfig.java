@@ -20,28 +20,36 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .headers(headers -> headers
+                .cacheControl(cache -> cache.disable()) // Prevent browser cache
+            )
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/api/students/**").permitAll()
-                .requestMatchers("/students/view").permitAll()
-                .requestMatchers("/students/**").permitAll()
-                .requestMatchers("/students/new/", "/students/edit/**", "/students/delete/**").permitAll()
-                .anyRequest().permitAll()
+                .requestMatchers("/students/view", "/students/**" , "/students/edit/**").authenticated()
+                .anyRequest().authenticated()
             )
             .formLogin(login -> login
                 .loginPage("/login")
                 .defaultSuccessUrl("/students", true)
                 .permitAll()
             )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
+            )
             .userDetailsService(studentDetailsService)
-            .httpBasic().disable();
+            .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return NoOpPasswordEncoder.getInstance(); // Use BCrypt in production
     }
 
     @Bean
@@ -49,4 +57,3 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 }
-

@@ -20,7 +20,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-user"></i>
-                        <span th:text="${student != null} ? ${student.firstName + ' ' + student.lastName} : 'Student Management'"></span>
+                       <span th:if="${loggedInUser != null}" th:text="${loggedInUser.firstName + ' ' + loggedInUser.lastName}"></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
